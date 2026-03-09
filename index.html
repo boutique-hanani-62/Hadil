@@ -5,120 +5,59 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Birthday for Hadil</title>
     <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background-color: #000000 !important;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+        * { box-sizing: border-box; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #000; display: flex; justify-content: center; align-items: center; }
 
-        canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            background-color: #000000;
-            transition: opacity 2s ease-in-out;
+        #startBtn {
+            position: absolute; z-index: 100; padding: 18px 45px; font-size: 20px;
+            font-family: 'Arial Black', sans-serif; background: rgba(255, 0, 127, 0.1); color: #ff007f;
+            border: 2px solid #ff007f; border-radius: 50px; cursor: pointer;
+            backdrop-filter: blur(10px); box-shadow: 0 0 20px rgba(255, 0, 127, 0.4);
+            transition: 0.5s all ease; text-transform: uppercase; letter-spacing: 2px;
         }
+        #startBtn:hover { background: #ff007f; color: white; box-shadow: 0 0 50px #ff007f; transform: scale(1.1); }
 
-        .main-text {
-            position: relative;
-            z-index: 10;
-            color: #ff2d95;
-            font-family: 'Arial Black', sans-serif;
-            font-size: 10vw;
-            font-weight: bold;
-            text-align: center;
-            text-transform: uppercase;
-            text-shadow: 0 0 15px #ff2d95, 0 0 30px #ff2d95, 0 0 50px #000;
+        canvas { position: absolute; top: 0; left: 0; z-index: 1; }
+
+        #textTarget {
+            position: relative; z-index: 10; color: #ff007f; 
+            font-family: 'Arial Black', 'Impact', sans-serif; font-size: 14vw; font-weight: 900;
+            text-align: center; text-transform: uppercase;
+            text-shadow: 0 0 30px rgba(255, 0, 127, 0.6), 6px 6px 0px #220011;
+            -webkit-text-stroke: 2px #ff007f; opacity: 0; transform: scale(0.8);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             pointer-events: none;
-            transition: opacity 1s ease-in-out, transform 1s ease-in-out;
         }
 
-        /* ستايل المشهد النهائي */
         .final-scene {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle at center, #001d3d 0%, #000000 100%);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 2s ease-in-out;
-            z-index: 5;
-            text-align: center;
-            padding: 20px;
+            position: absolute; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, #1a0010 0%, #000 100%);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            opacity: 0; visibility: hidden; transition: opacity 2.5s ease; z-index: 15;
         }
-
-        .final-active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        /* لافتة العبارة */
-        .banner-text {
-            color: #ffffff;
-            font-family: 'Georgia', serif;
-            font-size: 4vw;
-            font-style: italic;
-            margin-bottom: 30px;
-            text-shadow: 0 0 10px #ff2d95;
-            max-width: 80%;
-            line-height: 1.4;
-            animation: fadeInDown 2s ease-out;
-        }
-
-        .birthday-emoji {
-            font-size: 12vw;
-            margin-bottom: 20px;
-            animation: bounce 2s infinite ease-in-out;
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
-        }
-
-        @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .star {
-            position: absolute;
-            background: white;
-            border-radius: 50%;
-            opacity: 0.5;
-            animation: twinkle var(--duration) infinite ease-in-out;
-        }
-
-        @keyframes twinkle {
-            0%, 100% { opacity: 0.3; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.2); }
-        }
+        .final-active { opacity: 1; visibility: visible; }
+        .banner-text { color: #fff; font-family: 'Arial', sans-serif; font-size: 4.5vw; font-weight: bold; margin-bottom: 20px; text-align: center; line-height: 1.4; }
+        .birthday-emoji { font-size: 15vw; margin: 15px 0; animation: float 3s infinite ease-in-out; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-25px); filter: drop-shadow(0 0 40px #ff007f); } }
+        .star { position: absolute; background: white; border-radius: 50%; opacity: 0; animation: twinkle var(--t) infinite; }
+        @keyframes twinkle { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; transform: scale(1.3); } }
     </style>
 </head>
 <body>
 
+    <button id="startBtn">START THE SURPRISE 🎹</button>
+
+    <audio id="bgMusic" preload="auto">
+        <source src="music.mp3" type="audio/mpeg">
+    </audio>
+
     <canvas id="matrixCanvas"></canvas>
-    
-    <div id="textTarget" class="main-text">HAPPY</div>
+    <div id="textTarget"></div>
 
     <div id="finalScene" class="final-scene">
-        <div class="banner-text">
-            "As long as you're smiling. I'm happy. <br> Stay happy, Hadil."
-        </div>
+        <div class="banner-text">"As long as you're smiling, I'm happy.<br>Stay happy, Hadil."</div>
         <div class="birthday-emoji">🥳🎂</div>
-        <div class="main-text" style="color: #ffd700; text-shadow: 0 0 20px #ffd700; font-size: 6vw;">
-            HAPPY BIRTHDAY
-        </div>
+        <div style="color: #ffd700; font-size: 9vw; font-weight: 900; font-family: 'Arial Black'; text-shadow: 0 0 50px #ffd700;">HAPPY BIRTHDAY</div>
     </div>
 
     <script>
@@ -126,82 +65,77 @@
         const ctx = canvas.getContext('2d');
         const textTarget = document.getElementById('textTarget');
         const finalScene = document.getElementById('finalScene');
+        const startBtn = document.getElementById('startBtn');
+        const bgMusic = document.getElementById('bgMusic');
 
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        let w = canvas.width = window.innerWidth;
+        let h = canvas.height = window.innerHeight;
+        const alphabet = "HADILHAPPYBIRTHDAY❤️";
+        const fontSize = 18;
+        const columns = Math.floor(w / fontSize);
+        const drops = Array(columns).fill(0).map(() => Math.random() * -100);
+        let isRunning = false;
 
-        const alphabet = "HADILHAPPYBIRTHDAY";
-        const fontSize = 16; 
-        const columns = Math.floor(canvas.width / fontSize);
-        const drops = [];
-
-        for (let x = 0; x < columns; x++) {
-            drops[x] = Math.random() * -100; 
-        }
-
-        let intensity = 0.98;
-        let isMatrixRunning = true;
-
-        function drawMatrix() {
-            if (!isMatrixRunning) return;
-            ctx.fillStyle = "rgba(0, 0, 0, 0.15)"; 
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = "#ff2d95"; 
-            ctx.font = "bold " + fontSize + "px monospace";
-
+        function draw() {
+            if (!isRunning) return;
+            ctx.fillStyle = "rgba(0, 0, 0, 0.15)"; ctx.fillRect(0, 0, w, h);
+            ctx.fillStyle = "#ff2d95"; ctx.font = "bold " + fontSize + "px monospace";
             for (let i = 0; i < drops.length; i++) {
-                const text = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
-                if (drops[i] * fontSize > 0) ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-                if (drops[i] * fontSize > canvas.height && Math.random() > intensity) drops[i] = 0;
+                const txt = alphabet[Math.floor(Math.random() * alphabet.length)];
+                ctx.fillText(txt, i * fontSize, drops[i] * fontSize);
+                if (drops[i] * fontSize > h && Math.random() > 0.98) drops[i] = 0;
                 drops[i]++;
             }
-            if (intensity > 0.01) intensity -= 0.002; 
+            requestAnimationFrame(draw);
         }
 
-        const matrixInterval = setInterval(drawMatrix, 30);
-
-        // --- تتابع الكلمات المعدل ---
-        const words = ["HAPPY", "BIRTHDAY", "HADIL", "❤️😍"];
-        let wordIndex = 0;
-
-        const textInterval = setInterval(() => {
-            if (wordIndex >= words.length - 1) {
-                clearInterval(textInterval);
-                setTimeout(switchToStars, 3000); // الانتقال بعد 3 ثوان من القلب
-                return;
-            }
-            textTarget.style.opacity = 0;
-            setTimeout(() => {
-                wordIndex++;
-                textTarget.innerHTML = words[wordIndex];
-                textTarget.style.opacity = 1;
-            }, 600);
-        }, 2500);
-
-        function switchToStars() {
-            isMatrixRunning = false;
-            canvas.style.opacity = "0";
-            textTarget.style.opacity = "0";
-            
-            for (let i = 0; i < 150; i++) {
-                const star = document.createElement('div');
-                star.className = 'star';
-                const size = Math.random() * 3 + 'px';
-                star.style.width = size;
-                star.style.height = size;
-                star.style.left = Math.random() * 100 + '%';
-                star.style.top = Math.random() * 100 + '%';
-                star.style.setProperty('--duration', (Math.random() * 3 + 2) + 's');
-                finalScene.appendChild(star);
-            }
-
-            finalScene.classList.add('final-active');
-        }
-
-        window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+        startBtn.addEventListener('click', () => {
+            startBtn.style.display = 'none';
+            bgMusic.play().catch(err => console.error("Audio error:", err));
+            startCountdown();
         });
+
+        let count = 3;
+        function startCountdown() {
+            if (count > 0) {
+                textTarget.innerText = count; textTarget.style.opacity = 1; textTarget.style.transform = "scale(1.4)";
+                setTimeout(() => { 
+                    textTarget.style.opacity = 0; textTarget.style.transform = "scale(0.6)"; 
+                    setTimeout(() => { count--; startCountdown(); }, 200); 
+                }, 800);
+            } else { startSurprise(); }
+        }
+
+        function startSurprise() {
+            isRunning = true; draw();
+            const words = ["HAPPY", "BIRTHDAY", "HADIL", "❤️😍"];
+            let idx = 0;
+            function showNextWord() {
+                if (idx < words.length) {
+                    textTarget.innerText = words[idx]; textTarget.style.opacity = 1; textTarget.style.transform = "scale(1.2)";
+                    setTimeout(() => {
+                        if (idx < words.length - 1) { 
+                            textTarget.style.opacity = 0; textTarget.style.transform = "scale(0.9)"; 
+                            setTimeout(() => { idx++; showNextWord(); }, 300); 
+                        } else { setTimeout(goFinal, 4000); }
+                    }, 2200);
+                }
+            }
+            showNextWord();
+        }
+
+        function goFinal() {
+            textTarget.style.opacity = 0; canvas.style.opacity = 0;
+            for (let i = 0; i < 150; i++) {
+                const s = document.createElement('div'); s.className = 'star';
+                const size = Math.random() * 3 + 'px'; s.style.width = size; s.style.height = size;
+                s.style.left = Math.random() * 100 + '%'; s.style.top = Math.random() * 100 + '%';
+                s.style.setProperty('--t', (Math.random() * 3 + 1) + 's'); finalScene.appendChild(s);
+            }
+            setTimeout(() => { finalScene.classList.add('final-active'); isRunning = false; }, 500);
+        }
+
+        window.addEventListener('resize', () => { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; });
     </script>
 </body>
 </html>
